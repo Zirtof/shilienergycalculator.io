@@ -1,123 +1,93 @@
-// Константы для расчётов
-// Точное количество дней в месяце и году по условию
-const DAYS_IN_MONTH = 30.44;
-const DAYS_IN_YEAR = 365.25;
+// Константы для перевода времени в часы
 const HOURS_IN_DAY = 24;
-const HOURS_IN_WEEK = 24 * 7;
+const HOURS_IN_WEEK = 24 * 7;        // 168
+const HOURS_IN_MONTH = 24 * 30.44;   // 730.56 (30.44 дня)
+const HOURS_IN_YEAR = 24 * 365.25;   // 8766 (365.25 дней)
 
-// Функция для валидации числовых значений
-function isValidNumber(value) {
-  return !isNaN(value) && value >= 0;
-}
+// Получаем элементы формы и блока результатов
+const form = document.getElementById('energyForm');
+const totalCostOutput = document.getElementById('totalCostOutput');
+const hourCostOutput = document.getElementById('hourCostOutput');
+const dayCostOutput = document.getElementById('dayCostOutput');
+const weekCostOutput = document.getElementById('weekCostOutput');
+const monthCostOutput = document.getElementById('monthCostOutput');
+const yearCostOutput = document.getElementById('yearCostOutput');
+const resultsContainer = document.getElementById('results');
 
-// Функция, рассчитывающая сколько часов всего отработал прибор
-// в зависимости от выбранной единицы измерения.
-function calculateTotalHours(timeValue, timeUnit) {
+// Функция для расчёта общего времени в часах в зависимости от выбранной единицы
+function getTotalHours(timeValue, timeUnit) {
   switch (timeUnit) {
-    case "hours":
-      return timeValue;
-    case "days":
+    case 'hour':
+      return timeValue; // уже в часах
+    case 'day':
       return timeValue * HOURS_IN_DAY;
-    case "weeks":
+    case 'week':
       return timeValue * HOURS_IN_WEEK;
-    case "months":
-      return timeValue * HOURS_IN_DAY * DAYS_IN_MONTH;
-    case "years":
-      return timeValue * HOURS_IN_DAY * DAYS_IN_YEAR;
+    case 'month':
+      return timeValue * HOURS_IN_MONTH;
+    case 'year':
+      return timeValue * HOURS_IN_YEAR;
     default:
       return 0;
   }
 }
 
-// Функция, которая рассчитывает стоимость при непрерывной работе
-function calculateContinuousCost(power, costPerKWh) {
-  // Мощность прибора (Вт) переводим в кВт (делим на 1000),
-  // умножаем на тариф => получаем стоимость за 1 час
-  const costPerHour = (power / 1000) * costPerKWh;
-  const costPerDay = costPerHour * HOURS_IN_DAY;
-  const costPerWeek = costPerDay * 7;
-  const costPerMonth = costPerDay * DAYS_IN_MONTH;
-  const costPerYear = costPerDay * DAYS_IN_YEAR;
-
-  return {
-    hourly: costPerHour,
-    daily: costPerDay,
-    weekly: costPerWeek,
-    monthly: costPerMonth,
-    yearly: costPerYear
-  };
+// Функция для форматирования чисел (например, чтобы округлять до двух знаков)
+function formatNumber(num) {
+  return num.toFixed(2);
 }
 
-// Основная функция для обработки данных из формы и вывода результатов
-function handleFormSubmit(event) {
+// Основной обработчик формы
+form.addEventListener('submit', (event) => {
   event.preventDefault();
 
-  // Получаем значения из формы
-  const powerInput = document.getElementById("powerInput");
-  const timeValueInput = document.getElementById("timeValueInput");
-  const timeUnitSelect = document.getElementById("timeUnitSelect");
-  const costInput = document.getElementById("costInput");
+  // Считываем значения из полей ввода
+  const powerInWatts = parseFloat(document.getElementById('powerInput').value);
+  const timeValue = parseFloat(document.getElementById('timeValueInput').value);
+  const timeUnit = document.getElementById('timeUnitSelect').value;
+  const costPerKwh = parseFloat(document.getElementById('costPerKwhInput').value);
 
-  const power = parseFloat(powerInput.value);
-  const timeValue = parseFloat(timeValueInput.value);
-  const timeUnit = timeUnitSelect.value;
-  const costPerKWh = parseFloat(costInput.value);
-
-  // Валидация данных
-  if (!isValidNumber(power) || !isValidNumber(timeValue) || !isValidNumber(costPerKWh)) {
-    alert("Пожалуйста, введите корректные числовые значения!");
+  // Проверка введённых данных на валидность
+  if (isNaN(powerInWatts) || powerInWatts < 0) {
+    alert('Пожалуйста, введите корректную (неотрицательную) мощность прибора в Вт.');
+    return;
+  }
+  if (isNaN(timeValue) || timeValue < 0) {
+    alert('Пожалуйста, введите корректное (неотрицательное) время работы.');
+    return;
+  }
+  if (isNaN(costPerKwh) || costPerKwh < 0) {
+    alert('Пожалуйста, введите корректную (неотрицательную) стоимость 1 кВт*ч.');
     return;
   }
 
-  // Считаем общее количество часов работы за указанный промежуток
-  const totalHours = calculateTotalHours(timeValue, timeUnit);
+  // Переводим время работы в часы
+  const totalHours = getTotalHours(timeValue, timeUnit);
 
-  // Переводим мощность из Вт в кВт
-  const powerInKW = power / 1000;
+  // Переводим мощность в кВт (из Вт)
+  const powerInKw = powerInWatts / 1000;
 
-  // Считаем общее потребление кВт·ч
-  const totalEnergyKWh = powerInKW * totalHours;
+  // Стоимость за 1 час при непрерывной работе
+  const costPerHour = powerInKw * costPerKwh;
 
-  // Считаем общую стоимость
-  const totalCost = totalEnergyKWh * costPerKWh;
+  // Общая стоимость за выбранный период
+  const totalCost = costPerHour * totalHours;
 
-  // Считаем стоимость при непрерывной работе
-  const continuousCost = calculateContinuousCost(power, costPerKWh);
+  // Стоимость за разные промежутки (если прибор работает непрерывно)
+  const costForOneHour = costPerHour;
+  const costForOneDay = costPerHour * HOURS_IN_DAY;
+  const costForOneWeek = costPerHour * HOURS_IN_WEEK;
+  const costForOneMonth = costPerHour * HOURS_IN_MONTH;
+  const costForOneYear = costPerHour * HOURS_IN_YEAR;
 
-  // Формируем вывод результатов
-  const resultsDiv = document.getElementById("results");
+  // Вывод результатов
+  totalCostOutput.textContent = `Общая стоимость за заданный период: ${formatNumber(totalCost)} у.е.`;
+  hourCostOutput.textContent = `Стоимость в час (при непрерывной работе): ${formatNumber(costForOneHour)} у.е.`;
+  dayCostOutput.textContent = `Стоимость в день (24 ч): ${formatNumber(costForOneDay)} у.е.`;
+  weekCostOutput.textContent = `Стоимость в неделю (7 дней): ${formatNumber(costForOneWeek)} у.е.`;
+  monthCostOutput.textContent = `Стоимость в месяц (30.44 дня): ${formatNumber(costForOneMonth)} у.е.`;
+  yearCostOutput.textContent = `Стоимость в год (365.25 дней): ${formatNumber(costForOneYear)} у.е.`;
 
-  // Очищаем предыдущие результаты, если они были
-  resultsDiv.innerHTML = "";
-
-  // Создаём блоки с текстом результатов
-  const totalCostParagraph = document.createElement("p");
-  totalCostParagraph.textContent = `Общая стоимость за указанный период: ${totalCost.toFixed(2)} руб.`;
-
-  // Стоимость при непрерывной работе
-  const costPerHourParagraph = document.createElement("p");
-  costPerHourParagraph.textContent = `Стоимость при непрерывной работе (в час): ${continuousCost.hourly.toFixed(2)} руб`;
-
-  const costPerDayParagraph = document.createElement("p");
-  costPerDayParagraph.textContent = `Стоимость при непрерывной работе (в день): ${continuousCost.daily.toFixed(2)} руб`;
-
-  const costPerWeekParagraph = document.createElement("p");
-  costPerWeekParagraph.textContent = `Стоимость при непрерывной работе (в неделю): ${continuousCost.weekly.toFixed(2)} руб`;
-
-  const costPerMonthParagraph = document.createElement("p");
-  costPerMonthParagraph.textContent = `Стоимость при непрерывной работе (в месяц): ${continuousCost.monthly.toFixed(2)} руб`;
-
-  const costPerYearParagraph = document.createElement("p");
-  costPerYearParagraph.textContent = `Стоимость при непрерывной работе (в год): ${continuousCost.yearly.toFixed(2)} руб`;
-
-  // Добавляем все абзацы в контейнер результатов
-  resultsDiv.appendChild(totalCostParagraph);
-  resultsDiv.appendChild(costPerHourParagraph);
-  resultsDiv.appendChild(costPerDayParagraph);
-  resultsDiv.appendChild(costPerWeekParagraph);
-  resultsDiv.appendChild(costPerMonthParagraph);
-  resultsDiv.appendChild(costPerYearParagraph);
-}
-
-// Назначаем обработчик события при отправке формы
-document.getElementById("energy-form").addEventListener("submit", handleFormSubmit);
+  // Отображаем блок результатов
+  resultsContainer.classList.remove('hidden');
+});
