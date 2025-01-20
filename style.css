@@ -1,84 +1,84 @@
-/* Общие стили для всей страницы */
+/* Сбрасываем базовые стили */
 * {
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
 }
 
 body {
-  margin: 0;
-  padding: 0;
-  font-family: sans-serif;
-  background-color: #f5f5f5; /* Неброский светлый цвет фона */
-  color: #333; /* Тёмный цвет текста для хорошей читаемости */
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  background: #f4f4f4;
+  color: #333;
+  padding: 20px;
 }
 
-/* Контейнер для формы и результатов */
-.container {
-  max-width: 500px;
-  margin: 40px auto;
-  background-color: #fff;
-  padding: 20px 30px;
-  border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+header, main {
+  max-width: 600px;
+  margin: 0 auto;
 }
 
-/* Заголовок */
-.container h1 {
+h1 {
   text-align: center;
   margin-bottom: 20px;
 }
 
-/* Стили для формы */
 form {
-  display: flex;
-  flex-direction: column;
+  background: #fff;
+  border-radius: 5px;
+  padding: 20px;
+  margin-bottom: 20px;
 }
 
-.input-group {
+/* Стили для групп элементов формы */
+.form-group {
+  display: flex;
+  flex-direction: column;
   margin-bottom: 15px;
 }
 
-.input-group label {
-  display: block;
+.form-group label {
   margin-bottom: 5px;
   font-weight: bold;
 }
 
-.input-group input,
-.input-group select {
-  width: 100%;
+.form-group input,
+.form-group select {
   padding: 8px;
   font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
-/* Кнопка расчёта */
-#calculateButton {
-  width: 100%;
-  padding: 10px;
-  font-size: 1.1rem;
-  background-color: #0072b1; /* Неброский синий */
+/* Кнопка */
+.btn {
+  background: #007bff;
   color: #fff;
   border: none;
-  border-radius: 4px;
   cursor: pointer;
+  padding: 10px;
+  font-size: 1rem;
+  border-radius: 4px;
 }
 
-#calculateButton:hover {
-  background-color: #005a8d;
+.btn:hover {
+  background: #0056b3;
 }
 
-/* Блок результатов */
-.results {
-  margin-top: 30px;
-  padding: 15px;
-  border-top: 1px solid #ddd;
-  line-height: 1.6;
+/* Секция с результатом */
+#result {
+  background: #fff;
+  border-radius: 5px;
+  padding: 20px;
+  min-height: 50px;
 }
 
-/* Скрытие блока */
-.hidden {
-  display: none;
+#result p {
+  margin-bottom: 10px;
+  line-height: 1.4;
 }
 
-.results h2 {
-  margin-bottom: 15px;
+#error-message {
+  color: red;
+  font-weight: bold;
 }
