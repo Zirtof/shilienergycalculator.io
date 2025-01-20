@@ -3,102 +3,73 @@
 <head>
   <meta charset="UTF-8" />
   <title>Калькулятор энергопотребления</title>
-  <!-- Подключаем стили -->
+  <!-- Подключаем CSS -->
   <link rel="stylesheet" href="style.css" />
+  <!-- Подключаем JavaScript -->
+  <script defer src="script.js"></script>
 </head>
 <body>
-
-  <header>
+  <main class="container">
     <h1>Калькулятор энергопотребления</h1>
-  </header>
-
-  <main>
-    <form id="energy-calculator-form">
-      <!-- Блок ввода мощности прибора -->
-      <div class="form-group">
-        <label for="power">Мощность прибора (Вт):</label>
-        <input 
-          type="number" 
-          id="power" 
-          name="power" 
-          min="0" 
-          step="any" 
-          placeholder="Например, 1000" 
-          required 
-        />
-      </div>
-
-      <!-- Блок выбора времени работы -->
-      <div class="form-group">
-        <label for="timeValue">Время работы:</label>
-        <input 
-          type="number" 
-          id="timeValue" 
-          name="timeValue" 
-          min="0" 
-          step="any" 
-          placeholder="Например, 5" 
-          required 
-        />
-        <select id="timeUnit" name="timeUnit">
-          <option value="hours">Час(ы)</option>
-          <option value="days">День(дни)</option>
-          <option value="weeks">Неделя(и)</option>
-          <option value="months">Месяц(ы)</option>
-          <option value="years">Год(ы)</option>
-        </select>
-      </div>
-
-      <!-- Блок ввода тарифа -->
-      <div class="form-group">
-        <label for="cost">Стоимость электроэнергии (за 1 кВт·ч):</label>
-        <input 
-          type="number" 
-          id="cost" 
-          name="cost" 
-          min="0" 
-          step="any" 
-          placeholder="Например, 5.32" 
-          required 
-        />
-      </div>
-
-      <!-- Блок для ручной настройки дней в месяце/году -->
-      <div class="form-group">
-        <label for="daysInMonth">Кол-во дней в месяце (по умолчанию 30.44):</label>
-        <input 
-          type="number" 
-          id="daysInMonth" 
-          name="daysInMonth" 
-          value="30.44" 
-          step="any" 
-        />
-      </div>
-      <div class="form-group">
-        <label for="daysInYear">Кол-во дней в году (по умолчанию 365.25):</label>
-        <input 
-          type="number" 
-          id="daysInYear" 
-          name="daysInYear" 
-          value="365.25" 
-          step="any" 
-        />
-      </div>
-
-      <button 
-        type="button" 
-        id="calculate-btn" 
-        class="btn"
-      >
-        Рассчитать
-      </button>
+    
+    <form id="energy-form" class="form">
+      <!-- Мощность прибора в Вт -->
+      <label for="power">Мощность прибора (Вт):</label>
+      <input 
+        type="number" 
+        id="power" 
+        name="power" 
+        min="0" 
+        step="any"
+        placeholder="Например, 1000" 
+        required
+      />
+      
+      <!-- Время работы в часах -->
+      <label for="hours">Время работы (часов):</label>
+      <input 
+        type="number" 
+        id="hours" 
+        name="hours" 
+        min="0" 
+        step="any"
+        placeholder="Например, 5" 
+        required
+      />
+      
+      <!-- Стоимость электроэнергии за 1 кВт*ч -->
+      <label for="cost">Стоимость электроэнергии (за 1 кВт*ч):</label>
+      <input 
+        type="number" 
+        id="cost" 
+        name="cost" 
+        min="0" 
+        step="any"
+        placeholder="Например, 4.5" 
+        required
+      />
+      
+      <button type="submit">Рассчитать</button>
     </form>
-
-    <!-- Блок для вывода результата -->
-    <section id="result"></section>
+    
+    <!-- Блок для вывода результатов -->
+    <section id="results" class="results">
+      <!-- Общая стоимость за указанное время -->
+      <div class="result-item">
+        <h2>Общая стоимость за введённое время</h2>
+        <p id="total-cost">-</p>
+      </div>
+      
+      <!-- Стоимость за час, день, неделю, месяц, год (при непрерывной работе) -->
+      <div class="result-item">
+        <h2>Непрерывная работа</h2>
+        <p>За час: <span id="cost-per-hour">-</span></p>
+        <p>За день: <span id="cost-per-day">-</span></p>
+        <p>За неделю: <span id="cost-per-week">-</span></p>
+        <p>За месяц (30.44 дня): <span id="cost-per-month">-</span></p>
+        <p>За год (365.25 дней): <span id="cost-per-year">-</span></p>
+      </div>
+    </section>
   </main>
-
-  <!-- Подключаем скрипт -->
-  <script src="script.js"></script>
 </body>
 </html>
