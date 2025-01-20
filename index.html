@@ -2,79 +2,103 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Калькулятор энергопотребления</title>
-  <!-- Подключение стилей -->
+  <!-- Подключаем стили -->
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <div class="container">
+  <header>
     <h1>Калькулятор энергопотребления</h1>
+  </header>
 
-    <form id="energyForm">
-      <div class="input-group">
-        <label for="powerInput">Мощность прибора (Вт):</label>
+  <main>
+    <form id="energy-calculator-form">
+      <!-- Блок ввода мощности прибора -->
+      <div class="form-group">
+        <label for="power">Мощность прибора (Вт):</label>
         <input 
           type="number" 
-          id="powerInput" 
-          name="powerInput" 
+          id="power" 
+          name="power" 
           min="0" 
-          step="any"
+          step="any" 
           placeholder="Например, 1000" 
-          required
+          required 
         />
       </div>
 
-      <div class="input-group">
-        <label for="timeValueInput">Время работы:</label>
+      <!-- Блок выбора времени работы -->
+      <div class="form-group">
+        <label for="timeValue">Время работы:</label>
         <input 
           type="number" 
-          id="timeValueInput" 
-          name="timeValueInput" 
+          id="timeValue" 
+          name="timeValue" 
           min="0" 
           step="any" 
-          placeholder="Например, 2" 
-          required
+          placeholder="Например, 5" 
+          required 
         />
-        <select id="timeUnitSelect" name="timeUnitSelect">
-          <option value="hour">Часы</option>
-          <option value="day">Дни</option>
-          <option value="week">Недели</option>
-          <option value="month">Месяцы</option>
-          <option value="year">Годы</option>
+        <select id="timeUnit" name="timeUnit">
+          <option value="hours">Час(ы)</option>
+          <option value="days">День(дни)</option>
+          <option value="weeks">Неделя(и)</option>
+          <option value="months">Месяц(ы)</option>
+          <option value="years">Год(ы)</option>
         </select>
       </div>
 
-      <div class="input-group">
-        <label for="costPerKwhInput">Стоимость 1 кВт*ч (в вашей валюте):</label>
+      <!-- Блок ввода тарифа -->
+      <div class="form-group">
+        <label for="cost">Стоимость электроэнергии (за 1 кВт·ч):</label>
         <input 
           type="number" 
-          id="costPerKwhInput" 
-          name="costPerKwhInput" 
+          id="cost" 
+          name="cost" 
           min="0" 
-          step="any"
+          step="any" 
           placeholder="Например, 5.32" 
-          required
+          required 
         />
       </div>
 
-      <button type="submit" id="calculateButton">Рассчитать</button>
+      <!-- Блок для ручной настройки дней в месяце/году -->
+      <div class="form-group">
+        <label for="daysInMonth">Кол-во дней в месяце (по умолчанию 30.44):</label>
+        <input 
+          type="number" 
+          id="daysInMonth" 
+          name="daysInMonth" 
+          value="30.44" 
+          step="any" 
+        />
+      </div>
+      <div class="form-group">
+        <label for="daysInYear">Кол-во дней в году (по умолчанию 365.25):</label>
+        <input 
+          type="number" 
+          id="daysInYear" 
+          name="daysInYear" 
+          value="365.25" 
+          step="any" 
+        />
+      </div>
+
+      <button 
+        type="button" 
+        id="calculate-btn" 
+        class="btn"
+      >
+        Рассчитать
+      </button>
     </form>
 
-    <!-- Блок результатов -->
-    <div id="results" class="results hidden">
-      <h2>Результаты</h2>
-      <p id="totalCostOutput"></p>
-      <p id="hourCostOutput"></p>
-      <p id="dayCostOutput"></p>
-      <p id="weekCostOutput"></p>
-      <p id="monthCostOutput"></p>
-      <p id="yearCostOutput"></p>
-    </div>
-  </div>
+    <!-- Блок для вывода результата -->
+    <section id="result"></section>
+  </main>
 
-  <!-- Подключение JavaScript -->
+  <!-- Подключаем скрипт -->
   <script src="script.js"></script>
 </body>
 </html>
