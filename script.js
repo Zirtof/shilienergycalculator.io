@@ -1,122 +1,123 @@
-// script.js
-
-/**
- * Константы для количества дней в месяце и году (с учётом среднего в году 365.25 дней и в месяце 30.44 дней).
- */
-const DAYS_IN_YEAR = 365.25;
+// Константы для расчётов
+// Точное количество дней в месяце и году по условию
 const DAYS_IN_MONTH = 30.44;
+const DAYS_IN_YEAR = 365.25;
 const HOURS_IN_DAY = 24;
-const HOURS_IN_WEEK = 168; // 24 * 7
+const HOURS_IN_WEEK = 24 * 7;
 
-/**
- * Функция для инициализации калькулятора после загрузки DOM.
- */
-document.addEventListener('DOMContentLoaded', () => {
-  const form = document.getElementById('energy-form');
-  const resultDiv = document.getElementById('result');
+// Функция для валидации числовых значений
+function isValidNumber(value) {
+  return !isNaN(value) && value >= 0;
+}
 
-  form.addEventListener('submit', event => {
-    event.preventDefault();
+// Функция, рассчитывающая сколько часов всего отработал прибор
+// в зависимости от выбранной единицы измерения.
+function calculateTotalHours(timeValue, timeUnit) {
+  switch (timeUnit) {
+    case "hours":
+      return timeValue;
+    case "days":
+      return timeValue * HOURS_IN_DAY;
+    case "weeks":
+      return timeValue * HOURS_IN_WEEK;
+    case "months":
+      return timeValue * HOURS_IN_DAY * DAYS_IN_MONTH;
+    case "years":
+      return timeValue * HOURS_IN_DAY * DAYS_IN_YEAR;
+    default:
+      return 0;
+  }
+}
 
-    // Считываем и валидируем данные из полей ввода
-    const devicePowerInput = document.getElementById('devicePower');
-    const usageTimeInput = document.getElementById('usageTime');
-    const electricityCostInput = document.getElementById('electricityCost');
-
-    // Преобразуем значения в числа (float или integer)
-    const devicePower = parseFloat(devicePowerInput.value);
-    const usageTime = parseFloat(usageTimeInput.value);
-    const electricityCost = parseFloat(electricityCostInput.value);
-
-    // Проверяем, что все значения - числа и не являются NaN
-    if (
-      isNaN(devicePower) ||
-      isNaN(usageTime) ||
-      isNaN(electricityCost) ||
-      devicePower < 0 ||
-      usageTime < 0 ||
-      electricityCost < 0
-    ) {
-      alert('Пожалуйста, введите корректные положительные числа.');
-      return;
-    }
-
-    // Выполняем расчёты
-    const calculationResults = calculateEnergyCosts(devicePower, usageTime, electricityCost);
-
-    // Отображаем результаты на странице
-    displayResults(calculationResults, resultDiv);
-  });
-});
-
-/**
- * Функция для расчёта энергопотребления и стоимости.
- * @param {number} power - мощность прибора в Вт
- * @param {number} hours - время работы в часах
- * @param {number} costPerKWh - стоимость электроэнергии (руб. за кВт·ч)
- * @id70533735 (@returns) {Object} - объект с результатами
- */
-function calculateEnergyCosts(power, hours, costPerKWh) {
-  // Переводим мощность из Вт (W) в кВт (kW)
-  const powerInKW = power / 1000;
-
-  // Общая энергия, потреблённая за указанное время (кВт·ч)
-  const totalEnergy = powerInKW * hours;
-
-  // Общая стоимость за указанное время
-  const totalCost = totalEnergy * costPerKWh;
-
-  // Стоимость при непрерывной работе (1 час)
-  const costPerHour = powerInKW * costPerKWh;
-
-  // Стоимость при непрерывной работе (1 день)
+// Функция, которая рассчитывает стоимость при непрерывной работе
+function calculateContinuousCost(power, costPerKWh) {
+  // Мощность прибора (Вт) переводим в кВт (делим на 1000),
+  // умножаем на тариф => получаем стоимость за 1 час
+  const costPerHour = (power / 1000) * costPerKWh;
   const costPerDay = costPerHour * HOURS_IN_DAY;
-
-  // Стоимость при непрерывной работе (1 неделя)
-  const costPerWeek = costPerHour * HOURS_IN_WEEK;
-
-  // Стоимость при непрерывной работе (1 месяц)
+  const costPerWeek = costPerDay * 7;
   const costPerMonth = costPerDay * DAYS_IN_MONTH;
-
-  // Стоимость при непрерывной работе (1 год)
   const costPerYear = costPerDay * DAYS_IN_YEAR;
 
   return {
-    totalCost,
-    costPerHour,
-    costPerDay,
-    costPerWeek,
-    costPerMonth,
-    costPerYear
+    hourly: costPerHour,
+    daily: costPerDay,
+    weekly: costPerWeek,
+    monthly: costPerMonth,
+    yearly: costPerYear
   };
 }
 
-/**
- * Функция для отображения результатов на странице.
- * @param {Object} results - объект с результатами расчёта
- * @param {HTMLElement} container - элемент, куда выводить результаты
- */
-function displayResults(results, container) {
-  // Округляем результаты до двух знаков после запятой
-  const {
-    totalCost,
-    costPerHour,
-    costPerDay,
-    costPerWeek,
-    costPerMonth,
-    costPerYear
-  } = results;
+// Основная функция для обработки данных из формы и вывода результатов
+function handleFormSubmit(event) {
+  event.preventDefault();
 
-  // Формируем HTML с выводом результатов
-  container.innerHTML = `
-    <p><strong>Общая стоимость потреблённой энергии за указанное время:</strong> ${totalCost.toFixed(2)} руб.</p>
-    <p><strong>При непрерывной работе:</strong></p>
-    <ul>
-      <li>За 1 час: ${costPerHour.toFixed(2)} руб.</li>
-      <li>За 1 день: ${costPerDay.toFixed(2)} руб.</li>
-      <li>За 1 неделю: ${costPerWeek.toFixed(2)} руб.</li>
-      <li>За 1 месяц : ${costPerMonth.toFixed(2)} руб.</li>
-      <li>За 1 год : ${costPerYear.toFixed(2)} руб.</li>
-    </ul>
-  `;
+  // Получаем значения из формы
+  const powerInput = document.getElementById("powerInput");
+  const timeValueInput = document.getElementById("timeValueInput");
+  const timeUnitSelect = document.getElementById("timeUnitSelect");
+  const costInput = document.getElementById("costInput");
+
+  const power = parseFloat(powerInput.value);
+  const timeValue = parseFloat(timeValueInput.value);
+  const timeUnit = timeUnitSelect.value;
+  const costPerKWh = parseFloat(costInput.value);
+
+  // Валидация данных
+  if (!isValidNumber(power) || !isValidNumber(timeValue) || !isValidNumber(costPerKWh)) {
+    alert("Пожалуйста, введите корректные числовые значения!");
+    return;
+  }
+
+  // Считаем общее количество часов работы за указанный промежуток
+  const totalHours = calculateTotalHours(timeValue, timeUnit);
+
+  // Переводим мощность из Вт в кВт
+  const powerInKW = power / 1000;
+
+  // Считаем общее потребление кВт·ч
+  const totalEnergyKWh = powerInKW * totalHours;
+
+  // Считаем общую стоимость
+  const totalCost = totalEnergyKWh * costPerKWh;
+
+  // Считаем стоимость при непрерывной работе
+  const continuousCost = calculateContinuousCost(power, costPerKWh);
+
+  // Формируем вывод результатов
+  const resultsDiv = document.getElementById("results");
+
+  // Очищаем предыдущие результаты, если они были
+  resultsDiv.innerHTML = "";
+
+  // Создаём блоки с текстом результатов
+  const totalCostParagraph = document.createElement("p");
+  totalCostParagraph.textContent = `Общая стоимость за указанный период: ${totalCost.toFixed(2)} руб.`;
+
+  // Стоимость при непрерывной работе
+  const costPerHourParagraph = document.createElement("p");
+  costPerHourParagraph.textContent = `Стоимость при непрерывной работе (в час): ${continuousCost.hourly.toFixed(2)} руб`;
+
+  const costPerDayParagraph = document.createElement("p");
+  costPerDayParagraph.textContent = `Стоимость при непрерывной работе (в день): ${continuousCost.daily.toFixed(2)} руб`;
+
+  const costPerWeekParagraph = document.createElement("p");
+  costPerWeekParagraph.textContent = `Стоимость при непрерывной работе (в неделю): ${continuousCost.weekly.toFixed(2)} руб`;
+
+  const costPerMonthParagraph = document.createElement("p");
+  costPerMonthParagraph.textContent = `Стоимость при непрерывной работе (в месяц): ${continuousCost.monthly.toFixed(2)} руб`;
+
+  const costPerYearParagraph = document.createElement("p");
+  costPerYearParagraph.textContent = `Стоимость при непрерывной работе (в год): ${continuousCost.yearly.toFixed(2)} руб`;
+
+  // Добавляем все абзацы в контейнер результатов
+  resultsDiv.appendChild(totalCostParagraph);
+  resultsDiv.appendChild(costPerHourParagraph);
+  resultsDiv.appendChild(costPerDayParagraph);
+  resultsDiv.appendChild(costPerWeekParagraph);
+  resultsDiv.appendChild(costPerMonthParagraph);
+  resultsDiv.appendChild(costPerYearParagraph);
 }
+
+// Назначаем обработчик события при отправке формы
+document.getElementById("energy-form").addEventListener("submit", handleFormSubmit);
