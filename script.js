@@ -1,84 +1,101 @@
-/* Сбрасываем базовые стили */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/**
+ * Функция для форматирования числового результата
+ * до двух знаков после запятой.
+ * @param {number} value - число для форматирования
+ * @id70533735 (@returns) {string} - отформатированное число
+ */
+function formatNumber(value) {
+  return value.toFixed(2);
 }
 
-body {
-  font-family: Arial, sans-serif;
-  line-height: 1.6;
-  background: #f4f4f4;
-  color: #333;
-  padding: 20px;
+// Находим элементы на странице
+const powerInput = document.getElementById('power');
+const timeValueInput = document.getElementById('timeValue');
+const timeUnitSelect = document.getElementById('timeUnit');
+const costInput = document.getElementById('cost');
+const daysInMonthInput = document.getElementById('daysInMonth');
+const daysInYearInput = document.getElementById('daysInYear');
+const calculateBtn = document.getElementById('calculate-btn');
+const resultContainer = document.getElementById('result');
+
+/**
+ * Основная функция для расчёта энергопотребления и вывода результата.
+ */
+function calculateEnergyCost() {
+  // Очищаем предыдущие результаты
+  resultContainer.innerHTML = '';
+
+  // Считываем значения из полей ввода и преобразуем к числу
+  const power = parseFloat(powerInput.value);
+  const timeValue = parseFloat(timeValueInput.value);
+  const costPerKwh = parseFloat(costInput.value);
+  const daysInMonth = parseFloat(daysInMonthInput.value);
+  const daysInYear = parseFloat(daysInYearInput.value);
+  const timeUnit = timeUnitSelect.value;
+
+  // Проверка корректности введённых данных
+  if (
+    isNaN(power) || power < 0 ||
+    isNaN(timeValue) || timeValue < 0 ||
+    isNaN(costPerKwh) || costPerKwh < 0 ||
+    isNaN(daysInMonth) || daysInMonth <= 0 ||
+    isNaN(daysInYear) || daysInYear <= 0
+  ) {
+    resultContainer.innerHTML = '<p id="error-message">Пожалуйста, введите корректные числовые значения.</p>';
+    return;
+  }
+
+  // Определяем, сколько часов соответствует выбранному интервалу
+  let totalHours = 0;
+  switch (timeUnit) {
+    case 'hours':
+      totalHours = timeValue;
+      break;
+    case 'days':
+      totalHours = timeValue * 24;
+      break;
+    case 'weeks':
+      totalHours = timeValue * 24 * 7;
+      break;
+    case 'months':
+      totalHours = timeValue * 24 * daysInMonth;
+      break;
+    case 'years':
+      totalHours = timeValue * 24 * daysInYear;
+      break;
+    default:
+      totalHours = 0;
+  }
+
+  // Расчёт общего расхода энергии в кВт·ч за указанный период:
+  // (мощность (Вт) / 1000) * кол-во часов = кВт·ч
+  const totalKwh = (power / 1000) * totalHours;
+
+  // Расчёт общей стоимости
+  const totalCost = totalKwh * costPerKwh;
+
+  // Теперь рассчитываем стоимость для 1 часа, 1 дня, 1 недели, месяца и года
+  const costPerHour = (power / 1000) * 1 * costPerKwh;
+  const costPerDay = (power / 1000) * 24 * costPerKwh;
+  const costPerWeek = (power / 1000) * 24 * 7 * costPerKwh;
+  const costPerMonth = (power / 1000) * 24 * daysInMonth * costPerKwh;
+  const costPerYear = (power / 1000) * 24 * daysInYear * costPerKwh;
+
+  // Формируем вывод на страницу
+  const resultHtml = `
+    <p><strong>Общая стоимость за указанный период:</strong> ${formatNumber(totalCost)} у.е.</p>
+    <p><strong>Стоимость при непрерывной работе:</strong></p>
+    <ul>
+      <li>За 1 час: ${formatNumber(costPerHour)} у.е.</li>
+      <li>За 1 день: ${formatNumber(costPerDay)} у.е.</li>
+      <li>За 1 неделю: ${formatNumber(costPerWeek)} у.е.</li>
+      <li>За 1 месяц (${daysInMonth} дн.): ${formatNumber(costPerMonth)} у.е.</li>
+      <li>За 1 год (${daysInYear} дн.): ${formatNumber(costPerYear)} у.е.</li>
+    </ul>
+  `;
+
+  resultContainer.innerHTML = resultHtml;
 }
 
-header, main {
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-h1 {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-form {
-  background: #fff;
-  border-radius: 5px;
-  padding: 20px;
-  margin-bottom: 20px;
-}
-
-/* Стили для групп элементов формы */
-.form-group {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 15px;
-}
-
-.form-group label {
-  margin-bottom: 5px;
-  font-weight: bold;
-}
-
-.form-group input,
-.form-group select {
-  padding: 8px;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-/* Кнопка */
-.btn {
-  background: #007bff;
-  color: #fff;
-  border: none;
-  cursor: pointer;
-  padding: 10px;
-  font-size: 1rem;
-  border-radius: 4px;
-}
-
-.btn:hover {
-  background: #0056b3;
-}
-
-/* Секция с результатом */
-#result {
-  background: #fff;
-  border-radius: 5px;
-  padding: 20px;
-  min-height: 50px;
-}
-
-#result p {
-  margin-bottom: 10px;
-  line-height: 1.4;
-}
-
-#error-message {
-  color: red;
-  font-weight: bold;
-}
+// Привязываем обработчик события к кнопке
+calculateBtn.addEventListener('click', calculateEnergyCost);
